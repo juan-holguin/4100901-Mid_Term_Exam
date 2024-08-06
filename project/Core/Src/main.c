@@ -45,6 +45,9 @@ UART_HandleTypeDef huart2;
 /* USER CODE BEGIN PV */
 uint8_t left_pressed = 0;
 uint8_t right_pressed = 0;
+uint8_t conta_left = 0;
+uint8_t conta_right = 0;
+static uint32_t time = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -59,19 +62,30 @@ static void MX_USART2_UART_Init(void);
 /* USER CODE BEGIN 0 */
 void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
 {
+
   /* Prevent unused argument(s) compilation warning */
- 	if(GPIO_Pin == BUTTON_LEFT_Pin){
- 		HAL_UART_Transmit(&huart2, "Button_Left\r\n", 12, 10)
- 		left_pressed = 1;
-	}
- 	if(GPIO_Pin == BUTTON_RIGHT_Pin){
- 		HAL_UART_Transmit(&huart2, "Button_Right\r\n", 13, 10)
- 		right_pressed = 1;
-	}
+  if (GPIO_Pin == BUTTON_LEFT_Pin ){
+	  HAL_UART_Transmit(&huart2, "button_left\r\n", 12, 10);
+	  left_pressed = 1;
+	  if(HAL_GetTick() - time <= 500){
+	 		  time = HAL_GetTick();
+	 		  conta_left = conta_left + 1;
+	 	  }
+	   }
+
+  if (GPIO_Pin == BUTTON_RIGHT_Pin){
+ 	 HAL_UART_Transmit(&huart2, "button_right\r\n", 13, 10);
+	  right_pressed = 1;
+	  if(HAL_GetTick() - time <= 500){
+	 		  time = HAL_GetTick();
+	 		  conta_right = conta_right + 1;
+   }
+
 
   /* NOTE: This function should not be modified, when the callback is needed,
            the HAL_GPIO_EXTI_Callback could be implemented in the user file
    */
+}
 }
 /* USER CODE END 0 */
 
@@ -104,6 +118,8 @@ int main(void)
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
   MX_USART2_UART_Init();
+  HAL_UART_Transmit(&huart2, "HELLO_WORLD\r\n", 12, 10);
+
   /* USER CODE BEGIN 2 */
 
   /* USER CODE END 2 */
@@ -112,27 +128,49 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
-	  if(left_pressed != 0){
-		  left_pressed = 0;
-		  for(unit8_t i = 0; i < 6; i++){
-			  HAL_GPIO_TogglePin(LED_LEFT_GPIO_Port, LED_LEFT_Pin);
-			  HAL_Delay(250)
-		  }
+	  if (left_pressed !=0){
+		  	  HAL_GPIO_WritePin(LED_LEFT_GPIO_Port, LED_LEFT_Pin, 0);
+			  if (conta_left >= 2){
+				  for (uint32_t i = 0; i < 10000000000000 ; i++){
+				  		  HAL_GPIO_TogglePin(LED_LEFT_GPIO_Port, LED_LEFT_Pin);
+				  		  HAL_Delay(250);
+				  }
+			  }else{
+		  for(uint8_t i = 0; i < 6; i++){
+		  HAL_GPIO_TogglePin(LED_LEFT_GPIO_Port, LED_LEFT_Pin);
+		  HAL_Delay(250);
+			  }
+
+
+	   }
 	  }
-	  if(right_pressed != 0){
-		  right_pressed = 0;
-		  for(unit8_t i = 0; i < 6; i++){
-			  HAL_GPIO_TogglePin(LED_RIGHT_GPIO_Port, LED_RIGHT_Pin);
-			  HAL_Delay(250)
-		  }
+
+	  if (right_pressed !=0){
+		  	  HAL_GPIO_WritePin(LED_RIGHT_GPIO_Port, LED_RIGHT_Pin, 0);
+			  if (conta_right >= 2){
+				  for (uint32_t i = 0; i < 10000000000000 ; i++){
+				  		  HAL_GPIO_TogglePin(LED_RIGHT_GPIO_Port, LED_RIGHT_Pin);
+				  		  HAL_Delay(250);
+				  }
+			  }else{
+		  for(uint8_t i = 0; i < 6; i++){
+		  HAL_GPIO_TogglePin(LED_RIGHT_GPIO_Port, LED_RIGHT_Pin);
+		  HAL_Delay(250);
+			  }
+
+
+	   }
 	  }
+
+
+
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
-}
 
+}
 /**
   * @brief System Clock Configuration
   * @retval None
@@ -228,25 +266,25 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(LED_LEFT_GPIO_Port, LED_LEFT_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(LED_LEFT_GPIO_Port, LED_LEFT_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(LED_RIGHT_GPIO_Port, LED_RIGHT_Pin, GPIO_PIN_SET);
 
-  /*Configure GPIO pins : BUTTON_LEFT_Pin BUTTON_RIGHT_Pin */
+  /*Configure GPIO pins : button_left_Pin button_right_Pin */
   GPIO_InitStruct.Pin = BUTTON_LEFT_Pin|BUTTON_RIGHT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : LED_LEFT_Pin */
+  /*Configure GPIO pin : led_left_Pin */
   GPIO_InitStruct.Pin = LED_LEFT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(LED_LEFT_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : LED_RIGHT_Pin */
+  /*Configure GPIO pin : led_right_Pin */
   GPIO_InitStruct.Pin = LED_RIGHT_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
