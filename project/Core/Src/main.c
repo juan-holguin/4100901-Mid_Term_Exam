@@ -43,7 +43,8 @@
 UART_HandleTypeDef huart2;
 
 /* USER CODE BEGIN PV */
-
+uint8_t left_pressed = 0;
+uint8_t right_pressed = 0;
 /* USER CODE END PV */
 
 /* Private function prototypes -----------------------------------------------*/
@@ -56,7 +57,22 @@ static void MX_USART2_UART_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+void HAL_GPIO_EXTI_Callback(uint16_t GPIO_Pin)
+{
+  /* Prevent unused argument(s) compilation warning */
+ 	if(GPIO_Pin == BUTTON_LEFT_Pin){
+ 		HAL_UART_Transmit(&huart2, "Button_Left\r\n", 12, 10)
+ 		left_pressed = 1;
+	}
+ 	if(GPIO_Pin == BUTTON_RIGHT_Pin){
+ 		HAL_UART_Transmit(&huart2, "Button_Right\r\n", 13, 10)
+ 		right_pressed = 1;
+	}
 
+  /* NOTE: This function should not be modified, when the callback is needed,
+           the HAL_GPIO_EXTI_Callback could be implemented in the user file
+   */
+}
 /* USER CODE END 0 */
 
 /**
