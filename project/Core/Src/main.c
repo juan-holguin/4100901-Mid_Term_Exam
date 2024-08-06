@@ -112,6 +112,20 @@ int main(void)
   /* USER CODE BEGIN WHILE */
   while (1)
   {
+	  if(left_pressed != 0){
+		  left_pressed = 0;
+		  for(unit8_t i = 0; i < 6; i++){
+			  HAL_GPIO_TogglePin(LED_LEFT_GPIO_Port, LED_LEFT_Pin);
+			  HAL_Delay(250)
+		  }
+	  }
+	  if(right_pressed != 0){
+		  right_pressed = 0;
+		  for(unit8_t i = 0; i < 6; i++){
+			  HAL_GPIO_TogglePin(LED_RIGHT_GPIO_Port, LED_RIGHT_Pin);
+			  HAL_Delay(250)
+		  }
+	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
